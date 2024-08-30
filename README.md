@@ -105,9 +105,121 @@ The setup I have is composed of:
     * `cache-pool` as a cache for `data-pool` 
     * `apps-pool` for `appdata`, `domain`, `system`, etc.
 
+![Screenshot 2024-08-30 032828](https://github.com/user-attachments/assets/a32af72c-9c3b-47f7-bdb2-2d0c35a844f2)
 
+![Screenshot 2024-08-30 032853](https://github.com/user-attachments/assets/29c3c68d-0bf4-4aea-be21-17f8c79bb6b5)
 
-`PLACEHOLDER_ENCRYPTION_STEPS`
+In order to encrypt the array, first stop it
+
+![Screenshot 2024-08-30 033210](https://github.com/user-attachments/assets/a4c09e0a-610b-42b6-868f-24024e7b59ec)
+
+Then select your array device
+
+![Screenshot 2024-08-30 033303](https://github.com/user-attachments/assets/4774e7b8-a1d5-440c-b6ad-fd54e7482d77)
+
+![Screenshot 2024-08-30 033327](https://github.com/user-attachments/assets/5066c2b7-9071-444c-afac-044b0e8720df)
+
+![Screenshot 2024-08-30 033421](https://github.com/user-attachments/assets/91ff2559-9561-4291-8bf7-10bac3dcdb69)
+
+![Screenshot 2024-08-30 033518](https://github.com/user-attachments/assets/a9a7ab19-c838-4b5e-8b55-f72db7ea1aae)
+
+![Screenshot 2024-08-30 033939](https://github.com/user-attachments/assets/999428e1-58a2-4b94-9020-a4e7a44f5db0)
+
+![Screenshot 2024-08-30 034011](https://github.com/user-attachments/assets/e805d429-5908-41c7-80b2-a5b6978412e4)
+
+![Screenshot 2024-08-30 033956](https://github.com/user-attachments/assets/43da7def-66f7-4b6a-9139-d796ff812a96)
+
+![Screenshot 2024-08-30 034047](https://github.com/user-attachments/assets/8a0a5dd2-d730-430f-9a46-5564f5d82f7d)
 
 # Creating the encrypted ZFS dataset
+
+![Screenshot 2024-08-30 034158](https://github.com/user-attachments/assets/953486fe-601e-4c95-ba05-8f2766341bb3)
+
+![Screenshot 2024-08-30 040751](https://github.com/user-attachments/assets/7693e857-248b-4f4e-8180-d04cea452e8d)
+
+![Screenshot 2024-08-30 040858](https://github.com/user-attachments/assets/337bc5fd-f2cf-4ca4-b4aa-3297008bf70e)
+
+![Screenshot 2024-08-30 041006](https://github.com/user-attachments/assets/32758f9b-be02-4a28-9b0a-8ee78f0fa136)
+
+![Screenshot 2024-08-30 041015](https://github.com/user-attachments/assets/43c3549d-5feb-4497-8c02-e70b70eb2b21)
+
+![Screenshot 2024-08-30 041053](https://github.com/user-attachments/assets/de724923-6e19-47ee-a102-26283b5aeffd)
+
+![Screenshot 2024-08-30 041059](https://github.com/user-attachments/assets/05de2494-c065-45a1-8310-273f989f2ef6)
+
+![Screenshot 2024-08-30 041115](https://github.com/user-attachments/assets/88d0547d-a7ed-47e5-9fed-ada4f4d24654)
+
+# Setting up the startup script
+
+![Screenshot 2024-08-30 041156](https://github.com/user-attachments/assets/23e0f5d8-3922-49a2-9cbc-77637e91147c)
+
+```shell
+#!/bin/bash
+
+# Set this to 'yes' in order to receive notifications of success or failure to mount the encrypted dataset
+NOTIFY="no"
+
+# Discover all encrypted datasets we have, skipping over the prompt key locations
+declare -a encrypted_datasets=($(zfs list -r -t filesystem -H -o name,keylocation | grep -F '/' | grep -vE '\b(none|prompt)\b' | cut -d$'\t' -f1))
+
+curr_date() {
+    date +'%Y-%m-%d %H:%M:%S'
+}
+
+unraid_notify() {
+    if [[ "${NOTIFY}" != "yes" ]]; then
+        return
+    fi
+    
+    local message="$1"
+    local flag="$2"
+    
+    if [[ "$flag" == "success" ]]; then
+        severity="normal"
+    else
+        severity="warning"
+    fi
+    
+    /usr/local/emhttp/webGui/scripts/notify -s "Backup Notification" -d "$message" -i "$severity"
+}
+
+echo "[$(curr_date)] Detected encrypted datasets: ${encrypted_datasets[@]}"
+
+for d in "${encrypted_datasets[@]}"; do
+    
+    echo "[$(curr_date)] Loading key for: ${d}"
+    out=$(zfs load-key -r "${d}" 2>&1)
+    
+    if (($? == 0)); then
+        echo "[$(curr_date)] Loaded key for ${d}"
+        unraid_notify "Loaded key for ZFS dataset ${d}" "success"
+    else
+        echo "[$(curr_date)] Failed to load key for ${d}: ${out}"
+        unraid_notify "Failed to load key for ZFS dataset ${d}: ${out}" "failure"
+        exit 1
+    fi
+    
+    mountpoint="$(zfs list -H -o mountpoint ${d})"
+    
+    # Ensure the regular location is immutable so nothing can write to it unless we're mounted!
+    out="$(mkdir -p "${mountpoint}" 2>&1 && chattr +i "${mountpoint}" 2>&1)"
+    if (($? > 0)); then
+        echo "[$(curr_date)] Failed to create directory for ${d}: ${out}"
+        unraid_notify "Failed to create directory for ${d}: ${out}" "failure"
+        exit 1
+    fi
+    
+    
+    echo "[$(curr_date)] Mounting ${d} at ${mountpoint}"
+    out=$(zfs mount "${d}" 2>&1)
+    if (($? == 0)); then
+        echo "[$(curr_date)] Mounted ${d}"
+        unraid_notify "Mounted ZFS dataset ${d}" "success"
+    else
+        echo "[$(curr_date)] Failed to mount ${d}: ${out}"
+        unraid_notify "Failed to mount ZFS dataset ${d}: ${out}" "failure"
+        exit 1
+    fi
+done
+```
 

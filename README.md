@@ -386,19 +386,22 @@ The script will then ensure the dataset is unlocked and mounted before Docker an
 # Moving confidential parts of an application
 
 ```shell
-# 7. Identify what to transfer
+# 1. Identify what to transfer
 
-# nextcloud: mount some non-encrypted directory (e.g. /mnt/user/appdata/nextcloud/logs) as log directory and add this to php config
-#  'log_type' => 'file',
-#  'logfile' => '/var/log/nextcloud/nextcloud.log',
-#  'log_type_audit' => 'file',
-#  'logfile_audit' => '/var/log/nextcloud/audit.log',
+# In this case, we want to transfer these while maintaining the rest unencrypted
 
 # /mnt/user/appdata/immich/photos to /mnt/user/appdata-crypt/immich/photos
 # /mnt/user/appdata/nextcloud/data to /mnt/user/appdata-crypt/nextcloud/data
 # /mnt/user/appdata/paperless/server/media to /mnt/user/appdata-crypt/paperless/server/media
 # /mnt/user/appdata/paperless/server/export to /mnt/user/appdata-crypt/paperless/server/export
 # /mnt/user/appdata/paperless/server/consume to /mnt/user/appdata-crypt/paperless/server/consume
+
+# Some applications require extra attention
+# nextcloud: mount some non-encrypted directory (e.g. /mnt/user/appdata/nextcloud/logs) as log directory and add this to php config
+#  'log_type' => 'file',
+#  'logfile' => '/var/log/nextcloud/nextcloud.log',
+#  'log_type_audit' => 'file',
+#  'logfile_audit' => '/var/log/nextcloud/audit.log',
 
 OLD_DATASET="apps-pool/appdata"
 NEW_DATASET="${DATASET_LOCATION}"
@@ -415,11 +418,10 @@ for p in "${PATHS_TO_TRANSFER[@]}"; do
     rsync -aRv "/mnt/${OLD_DATASET}/./${p}" "/mnt/${NEW_DATASET}/"
 done
 
-# or, to move it (BUT BE CAREFUL):
-
-for p in "${PATHS_TO_TRANSFER[@]}"; do
-    rsync -aRv --remove-source-files "/mnt/${OLD_DATASET}/./${p}" "/mnt/${NEW_DATASET}/" && rm -rf "/mnt/${OLD_DATASET}/${p}"
-done
+# or, to move it instead of copying (BUT BE CAREFUL):
+# for p in "${PATHS_TO_TRANSFER[@]}"; do
+#     rsync -aRv --remove-source-files "/mnt/${OLD_DATASET}/./${p}" "/mnt/${NEW_DATASET}/" && rm -rf "/mnt/${OLD_DATASET}/${p}"
+# done
 
 # change directories in docker templates and compose, start the apps again, test tha they're ok
 

@@ -59,7 +59,9 @@ and we never have to worry about the key file because it is itself protected by 
 
 And that is exactly what we'll be doing here!
 
-`Password -> LUKS -> ZFS encryption key`
+1. You password guards the LUKS-encrypted drive
+2. The drive contains the ZFS decryption key
+3. A script ensures it gets auto-mounted when the Array gets started!
 
 # Requirements
 

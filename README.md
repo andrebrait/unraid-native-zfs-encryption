@@ -380,17 +380,13 @@ The script will then ensure the dataset is unlocked and mounted before Docker an
 ```shell
 # 7. Identify what to transfer
 
-    # 1. Immich, Nextcloud and Paperless-ngx documents
-    # What to move:
+# nextcloud: mount some non-encrypted directory (e.g. /mnt/user/appdata/nextcloud/logs) as log directory and add this to php config
+#  'log_type' => 'file',
+#  'logfile' => '/var/log/nextcloud/nextcloud.log',
+#  'log_type_audit' => 'file',
+#  'logfile_audit' => '/var/log/nextcloud/audit.log',
 
 # /mnt/user/appdata/immich/photos to /mnt/user/appdata-crypt/immich/photos
-
-#nextcloud: mount some directory (e.g. /mnt/user/appdata/nextcloud/logs) as log directory and add this to php config
-  'log_type' => 'file',
-  'logfile' => '/var/log/nextcloud/nextcloud.log',
-  'log_type_audit' => 'file',
-  'logfile_audit' => '/var/log/nextcloud/audit.log',
-
 # /mnt/user/appdata/nextcloud/data to /mnt/user/appdata-crypt/nextcloud/data
 # /mnt/user/appdata/paperless/server/media to /mnt/user/appdata-crypt/paperless/server/media
 # /mnt/user/appdata/paperless/server/export to /mnt/user/appdata-crypt/paperless/server/export

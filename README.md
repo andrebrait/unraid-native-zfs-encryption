@@ -188,8 +188,8 @@ DATASET_LOCATION="apps-pool/appdata-crypt"
 # SELECT ONLY ONE OF THE FORMATS BELOW
 
 # Raw (notice different keyformat)
-dd if=/dev/random of="${KEY_FILE}" bs=32 count=1 iflag=fullblock
-zfs create -o encryption=on -o keyformat=raw -o keylocation="file://${KEY_FILE}" "${DATASET_LOCATION}"
+# dd if=/dev/random of="${KEY_FILE}" bs=32 count=1 iflag=fullblock
+# zfs create -o encryption=on -o keyformat=raw -o keylocation="file://${KEY_FILE}" "${DATASET_LOCATION}"
 
 # Hex (notice different keyformat)
 od -Anone -x -N 32 -w64 /dev/random | tr -d [:blank:] > "${KEY_FILE}"

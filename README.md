@@ -100,10 +100,6 @@ In this tutorial, we will:
 
 ## Setup
 
->_If you already have an encrypted **array** or **pool**, skip this section._
-
-_This section assumes you either have **no array** or that you have a **dummy array**._
-
 The setup I have is composed of:
 * A dummy array
 * Three ZFS Pools
@@ -116,6 +112,10 @@ The setup I have is composed of:
 ![setup-2](https://github.com/user-attachments/assets/29c3c68d-0bf4-4aea-be21-17f8c79bb6b5)
 
 ## Encrypting an Array or Pool
+
+>_If you already have an encrypted **array** or **pool**, skip this section._
+
+_This section assumes you either have **no array** or that you have a **dummy array**._
 
 In order to encrypt the array, first stop it
 

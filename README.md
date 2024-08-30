@@ -364,17 +364,18 @@ The script has an option to enable notifications. If set to `yes`, you'll also r
 ![notifications](https://github.com/user-attachments/assets/3c81d9aa-13bb-40d3-8ae3-14b120f736e3)
 
 
+As a final test for the script, try stopping and starting the array again. 
+It should mount the encrypted dataset right away, whe the Array starts.ø
+
 That's it! From now on, you have an encrypted ZFS dataset in your unRAID server!\
-Whenever the Array stops, the dataset is automatically unmounted.\
+Whenever the array stops, the dataset is automatically unmounted.\
 When it starts, you'll be asked to fill in the password for the encryted array, just like always.\
 The script will then ensure the dataset is unlocked and mounted before Docker and VMs start up.
 
+
+# Moving confidential parts of an application
+
 ```shell
-# 6. Make script to auto-mount it on startup using user-scripts
-    # TEST THE SCRIPT
-    # LOCK WITH ZFS MASTER AND RUN SCRIPT
-    # STOP ARRAY
-    # START ARRAY
 # 7. Identify what to transfer
 
     # 1. Immich, Nextcloud and Paperless-ngx documents
@@ -421,14 +422,6 @@ for p in "${PATHS_TO_TRANSFER[@]}"; do
     rm -rf "/mnt/${OLD_DATASET}/${p}"
 done
 ```
-
-
-
-
-
-
-
-# Moving confidential parts of an application
 
 ![Screenshot 2024-08-30 042204](https://github.com/user-attachments/assets/789527a3-c4ae-4949-ae5d-f6308aecff29)
 

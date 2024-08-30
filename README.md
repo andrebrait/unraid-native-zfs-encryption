@@ -365,7 +365,9 @@ The script has an option to enable notifications. If set to `yes`, you'll also r
 
 
 As a final test for the script, try stopping and starting the array again. 
-It should mount the encrypted dataset right away, whe the Array starts.ø
+It should mount the encrypted dataset right away, whe the Array starts.
+
+## Done!
 
 That's it! From now on, you have an encrypted ZFS dataset in your unRAID server!\
 Whenever the array stops, the dataset is automatically unmounted.\

@@ -337,20 +337,37 @@ for d in "${encrypted_datasets[@]}"; do
 done
 ```
 
-# Testing the script
+## Testing the script
 
-![Screenshot 2024-08-30 041617](https://github.com/user-attachments/assets/14c57a16-9240-4f1f-b9cf-0dfaac101833)
+Go to `Main -> ZFS Master` and lock the dataset again
 
-![Screenshot 2024-08-30 041630](https://github.com/user-attachments/assets/384ebbca-db22-444b-9f69-9cd4eea45293)
-
-![Screenshot 2024-08-30 041642](https://github.com/user-attachments/assets/faa084e7-6051-4e3e-9b58-e96d79235970)
-
-![Screenshot 2024-08-30 041717](https://github.com/user-attachments/assets/c4f2d56d-4ba3-4cef-9605-dbfca42c6549)
-
-![Screenshot 2024-08-30 041747](https://github.com/user-attachments/assets/3c81d9aa-13bb-40d3-8ae3-14b120f736e3)
+![zfs-master-lock](https://github.com/user-attachments/assets/14c57a16-9240-4f1f-b9cf-0dfaac101833)
 
 
+Check that it displays the locked icon
 
+![locked-dataset](https://github.com/user-attachments/assets/384ebbca-db22-444b-9f69-9cd4eea45293)
+
+
+Head back to `User Scripts` and run the script
+
+![usr-scripts](https://github.com/user-attachments/assets/faa084e7-6051-4e3e-9b58-e96d79235970)
+
+
+You should see the output of the script, which should report success.
+
+![script-result](https://github.com/user-attachments/assets/c4f2d56d-4ba3-4cef-9605-dbfca42c6549)
+
+
+The script has an option to enable notifications. If set to `yes`, you'll also receive the results like so:
+
+![notifications](https://github.com/user-attachments/assets/3c81d9aa-13bb-40d3-8ae3-14b120f736e3)
+
+
+That's it! From now on, you have an encrypted ZFS dataset in your unRAID server!\
+Whenever the Array stops, the dataset is automatically unmounted.\
+When it starts, you'll be asked to fill in the password for the encryted array, just like always.\
+The script will then ensure the dataset is unlocked and mounted before Docker and VMs start up.
 
 ```shell
 # 6. Make script to auto-mount it on startup using user-scripts

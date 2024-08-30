@@ -214,6 +214,7 @@ Head over to `Shares` and set the newly crated `appdata-crypt` to be stored _onl
 
 
 Now head back to `Main -> ZFS Master` and lock the dataset.
+
 ![lock-dataset](https://github.com/user-attachments/assets/32758f9b-be02-4a28-9b0a-8ee78f0fa136)
 
 

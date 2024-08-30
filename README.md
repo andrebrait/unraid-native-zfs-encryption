@@ -89,8 +89,8 @@ In this tutorial, we will:
 
 1. Encrypt a dummy array to store the key for the ZFS dataset
 2. Create an encrypted dataset: `appdata-crypt`
-3. Create a script to automatically mount it after the array starts
-4. Moving Immich, Nextcloud and Paperless-ngx to the new encrypted dataset
+3. Create a script to automatically mounts it after the array starts
+4. Move some parts of Immich, Nextcloud and Paperless-ngx to the new encrypted dataset
 
 ## Encrypting an Array or Pool
 

@@ -223,3 +223,128 @@ for d in "${encrypted_datasets[@]}"; do
 done
 ```
 
+# Testing the script
+
+![Screenshot 2024-08-30 041617](https://github.com/user-attachments/assets/14c57a16-9240-4f1f-b9cf-0dfaac101833)
+
+![Screenshot 2024-08-30 041630](https://github.com/user-attachments/assets/384ebbca-db22-444b-9f69-9cd4eea45293)
+
+![Screenshot 2024-08-30 041642](https://github.com/user-attachments/assets/faa084e7-6051-4e3e-9b58-e96d79235970)
+
+![Screenshot 2024-08-30 041717](https://github.com/user-attachments/assets/c4f2d56d-4ba3-4cef-9605-dbfca42c6549)
+
+![Screenshot 2024-08-30 041747](https://github.com/user-attachments/assets/3c81d9aa-13bb-40d3-8ae3-14b120f736e3)
+
+Ensure the script is scheduled to run when the array starts!
+
+![Screenshot 2024-08-30 041904](https://github.com/user-attachments/assets/13169523-cae0-4164-af51-3d225ec9d935)
+
+# Moving confidential parts of an application
+
+![Screenshot 2024-08-30 042204](https://github.com/user-attachments/assets/789527a3-c4ae-4949-ae5d-f6308aecff29)
+
+![Screenshot 2024-08-30 045840](https://github.com/user-attachments/assets/c8f82a43-b8ff-4a0a-9c7f-cf67a4734809)
+
+![Screenshot 2024-08-30 045907](https://github.com/user-attachments/assets/b2b8be9d-01a9-4698-8a10-7e39d69b3cc7)
+
+![Screenshot 2024-08-30 045937](https://github.com/user-attachments/assets/75aeee45-e339-49ef-a623-4cabd2668f7f)
+
+![Screenshot 2024-08-30 050015](https://github.com/user-attachments/assets/e4e2b334-fd19-49bb-91bc-9782a9276c12)
+
+![Screenshot 2024-08-30 052010](https://github.com/user-attachments/assets/7eb41705-1ab8-4b9c-a893-44a7b59b2925)
+
+# Draft script
+
+```shell
+# unRAID 6.12.13
+
+# Show setup
+# 1. stop array
+# 2. encrypt Array
+
+ls /mnt/ # find your disk device
+
+# Create your key directory
+KEY_DIR="/mnt/disk1/.zfs-crypt-keys"
+KEY_FILE="${KEY_DIR}/appdata-crypt.key"
+DATASET_LOCATION="apps-pool/appdata-crypt"
+
+mkdir -p "${KEY_DIR}"
+
+
+# Raw (notice different keyformat)
+dd if=/dev/random of="${KEY_FILE}" bs=32 count=1 iflag=fullblock
+zfs create -o encryption=on -o keyformat=raw -o keylocation="file://${KEY_FILE}" "${DATASET_LOCATION}"
+
+# Hex (notice different keyformat)
+od -Anone -x -N 32 -w64 /dev/random | tr -d [:blank:] > "${KEY_FILE}"
+zfs create -o encryption=on -o keyformat=hex -o keylocation="file://${KEY_FILE}" "${DATASET_LOCATION}"
+
+# BACKUP YOUR KEY FILE
+cat "${KEY_FILE}"
+# 316e548796d2307290353d94676269a629ebc9b14dcd5baf8910467b35c3f199
+
+# 3. Change share in unRAID (make sure it only uses 'apps-pool'!!!!)
+# 4. unmount dataset
+chattr +i "/mnt/${DATASET_LOCATION}"
+
+# Set it so it is read-only and only root can read or cd into it
+chown -R root:root "${KEY_DIR}"
+chmod -R 500 "${KEY_DIR}"
+chattr +i "${KEY_DIR}"
+
+# 5. Mount it again (ignore ZFS master password prompt)
+# 6. Make script to auto-mount it on startup using user-scripts
+    # TEST THE SCRIPT
+    # LOCK WITH ZFS MASTER AND RUN SCRIPT
+    # STOP ARRAY
+    # START ARRAY
+# 7. Identify what to transfer
+
+    # 1. Immich, Nextcloud and Paperless-ngx documents
+    # What to move:
+
+# /mnt/user/appdata/immich/photos to /mnt/user/appdata-crypt/immich/photos
+
+#nextcloud: mount some directory (e.g. /mnt/user/appdata/nextcloud/logs) as log directory and add this to php config
+  'log_type' => 'file',
+  'logfile' => '/var/log/nextcloud/nextcloud.log',
+  'log_type_audit' => 'file',
+  'logfile_audit' => '/var/log/nextcloud/audit.log',
+
+# /mnt/user/appdata/nextcloud/data to /mnt/user/appdata-crypt/nextcloud/data
+# /mnt/user/appdata/paperless/server/media to /mnt/user/appdata-crypt/paperless/server/media
+# /mnt/user/appdata/paperless/server/export to /mnt/user/appdata-crypt/paperless/server/export
+# /mnt/user/appdata/paperless/server/consume to /mnt/user/appdata-crypt/paperless/server/consume
+
+OLD_DATASET="apps-pool/appdata"
+NEW_DATASET="${DATASET_LOCATION}"
+
+declare -a PATHS_TO_TRANSFER=(
+    "immich/photos"
+    "nextcloud/data"
+    "paperless/server/media"
+    "paperless/server/export"
+    "paperless/server/consume"
+)
+
+for p in "${PATHS_TO_TRANSFER[@]}"; do
+    rsync -aRv "/mnt/${OLD_DATASET}/./${p}" "/mnt/${NEW_DATASET}/"
+done
+
+# or, to move it (BUT BE CAREFUL):
+
+for p in "${PATHS_TO_TRANSFER[@]}"; do
+    rsync -aRv --remove-source-files "/mnt/${OLD_DATASET}/./${p}" "/mnt/${NEW_DATASET}/" && rm -rf "/mnt/${OLD_DATASET}/${p}"
+done
+
+# change directories in docker templates and compose, start the apps again, test tha they're ok
+
+# remove each one of the old folders
+for p in "${PATHS_TO_TRANSFER[@]}"; do
+    rm -rf "/mnt/${OLD_DATASET}/${p}"
+done
+```
+
+
+

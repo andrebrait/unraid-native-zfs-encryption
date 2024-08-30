@@ -385,6 +385,10 @@ The script will then ensure the dataset is unlocked and mounted before Docker an
 
 # Moving confidential parts of an application
 
+1. Stop docker compose.
+
+![Screenshot 2024-08-30 042204](https://github.com/user-attachments/assets/789527a3-c4ae-4949-ae5d-f6308aecff29)
+
 ```shell
 # 1. Identify what to transfer
 
@@ -431,7 +435,7 @@ for p in "${PATHS_TO_TRANSFER[@]}"; do
 done
 ```
 
-![Screenshot 2024-08-30 042204](https://github.com/user-attachments/assets/789527a3-c4ae-4949-ae5d-f6308aecff29)
+Make adjustments to your `docker-compose.yaml` files.
 
 ![Screenshot 2024-08-30 045840](https://github.com/user-attachments/assets/c8f82a43-b8ff-4a0a-9c7f-cf67a4734809)
 

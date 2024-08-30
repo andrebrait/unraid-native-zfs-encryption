@@ -198,96 +198,74 @@ zfs create -o encryption=on -o keyformat=hex -o keylocation="file://${KEY_FILE}"
 # Backup your key file
 cat "${KEY_FILE}"
 
-# Example. WRITE IT DOWN SOMEWHERE!
+# EXAMPLE OUTPUT. WRITE YOURS DOWN SOMEWHERE!
 # 316e548796d2307290353d94676269a629ebc9b14dcd5baf8910467b35c3f199
 ```
 
 
-The dataset should now be visible in ZFS Master!
+The dataset should now be visible in `Main -> ZFS Master`!
 
-![Screenshot 2024-08-30 040751](https://github.com/user-attachments/assets/7693e857-248b-4f4e-8180-d04cea452e8d)
+![dataset-in-zfs-master](https://github.com/user-attachments/assets/531430d6-902a-4ac5-8305-07b4ffc16f26)
 
 
-Head over to Shares and set the newly crated `appdata-crypted` to be stored only in the pool containing it
+Head over to `Shares` and set the newly crated `appdata-crypt` to be stored _only_ in the pool containing it
 
-![Screenshot 2024-08-30 040858](https://github.com/user-attachments/assets/337bc5fd-f2cf-4ca4-b4aa-3297008bf70e)
+![make-exclusive-share](https://github.com/user-attachments/assets/337bc5fd-f2cf-4ca4-b4aa-3297008bf70e)
+
+
+Now head back to `Main -> ZFS Master` and lock the dataset.
+![lock-dataset](https://github.com/user-attachments/assets/32758f9b-be02-4a28-9b0a-8ee78f0fa136)
+
+
+The icon changes to a locked drive.
+
+![locked-dataset](https://github.com/user-attachments/assets/43c3549d-5feb-4497-8c02-e70b70eb2b21)
+
+Back to the command line, you'll noticed that `/mnt/apps-pool/appdata-crypt` exists even though the dataset is locked.\
+To prevent any unintended files from being created there while the array does not start, let's make the directory immutable.
 
 ```shell
-# 3. Change share in unRAID (make sure it only uses 'apps-pool'!!!!)
-# 4. unmount dataset
+# Make the mount point immutable. Not even root can modify it!
 chattr +i "/mnt/${DATASET_LOCATION}"
-
-# Set it so it is read-only and only root can read or cd into it
-chown -R root:root "${KEY_DIR}"
-chmod -R 500 "${KEY_DIR}"
-chattr -R +i "${KEY_DIR}"
-
-# 5. Mount it again (ignore ZFS master password prompt)
-# 6. Make script to auto-mount it on startup using user-scripts
-    # TEST THE SCRIPT
-    # LOCK WITH ZFS MASTER AND RUN SCRIPT
-    # STOP ARRAY
-    # START ARRAY
-# 7. Identify what to transfer
-
-    # 1. Immich, Nextcloud and Paperless-ngx documents
-    # What to move:
-
-# /mnt/user/appdata/immich/photos to /mnt/user/appdata-crypt/immich/photos
-
-#nextcloud: mount some directory (e.g. /mnt/user/appdata/nextcloud/logs) as log directory and add this to php config
-  'log_type' => 'file',
-  'logfile' => '/var/log/nextcloud/nextcloud.log',
-  'log_type_audit' => 'file',
-  'logfile_audit' => '/var/log/nextcloud/audit.log',
-
-# /mnt/user/appdata/nextcloud/data to /mnt/user/appdata-crypt/nextcloud/data
-# /mnt/user/appdata/paperless/server/media to /mnt/user/appdata-crypt/paperless/server/media
-# /mnt/user/appdata/paperless/server/export to /mnt/user/appdata-crypt/paperless/server/export
-# /mnt/user/appdata/paperless/server/consume to /mnt/user/appdata-crypt/paperless/server/consume
-
-OLD_DATASET="apps-pool/appdata"
-NEW_DATASET="${DATASET_LOCATION}"
-
-declare -a PATHS_TO_TRANSFER=(
-    "immich/photos"
-    "nextcloud/data"
-    "paperless/server/media"
-    "paperless/server/export"
-    "paperless/server/consume"
-)
-
-for p in "${PATHS_TO_TRANSFER[@]}"; do
-    rsync -aRv "/mnt/${OLD_DATASET}/./${p}" "/mnt/${NEW_DATASET}/"
-done
-
-# or, to move it (BUT BE CAREFUL):
-
-for p in "${PATHS_TO_TRANSFER[@]}"; do
-    rsync -aRv --remove-source-files "/mnt/${OLD_DATASET}/./${p}" "/mnt/${NEW_DATASET}/" && rm -rf "/mnt/${OLD_DATASET}/${p}"
-done
-
-# change directories in docker templates and compose, start the apps again, test tha they're ok
-
-# remove each one of the old folders
-for p in "${PATHS_TO_TRANSFER[@]}"; do
-    rm -rf "/mnt/${OLD_DATASET}/${p}"
-done
 ```
 
-![Screenshot 2024-08-30 041006](https://github.com/user-attachments/assets/32758f9b-be02-4a28-9b0a-8ee78f0fa136)
+Back to `Main -> ZFS Master`, try unlocking the dataset.
 
-![Screenshot 2024-08-30 041015](https://github.com/user-attachments/assets/43c3549d-5feb-4497-8c02-e70b70eb2b21)
+![locked-dataset](https://github.com/user-attachments/assets/de724923-6e19-47ee-a102-26283b5aeffd)
 
-![Screenshot 2024-08-30 041053](https://github.com/user-attachments/assets/de724923-6e19-47ee-a102-26283b5aeffd)
 
-![Screenshot 2024-08-30 041059](https://github.com/user-attachments/assets/05de2494-c065-45a1-8310-273f989f2ef6)
+If it prompts you for a password, do not enter anything and just click OK.
 
-![Screenshot 2024-08-30 041115](https://github.com/user-attachments/assets/88d0547d-a7ed-47e5-9fed-ada4f4d24654)
+![password-prompt](https://github.com/user-attachments/assets/05de2494-c065-45a1-8310-273f989f2ef6)
 
-# Setting up the startup script
 
-![Screenshot 2024-08-30 041156](https://github.com/user-attachments/assets/23e0f5d8-3922-49a2-9cbc-77637e91147c)
+You should see this screen reporting it successfully unlocked the dataset!
+
+![dataset-unlocked](https://github.com/user-attachments/assets/88d0547d-a7ed-47e5-9fed-ada4f4d24654)
+
+
+Now that we know everthing is working, let's head back to the terminal and reduce the chances this key gets leaked.
+
+```shell
+# Set the key location to only be readably by the 'root' user.
+chown -R root:root "${KEY_DIR}"
+chmod -R 500 "${KEY_DIR}"
+
+# Set key directory and files to be immutable so it's absolutely impossible to be chaned
+chattr -R +i "${KEY_DIR}"
+```
+
+## Setting up the startup script
+
+In order to have the encrypted dataset be unlocked at the same time the Array is started, 
+head over to the `User Scripts` plugin and create a new script.
+
+Ensure its schedule is set to `At Startup of Array`, like so:
+
+![user-scripts](https://github.com/user-attachments/assets/23e0f5d8-3922-49a2-9cbc-77637e91147c)
+
+
+Edit the script's contents and paste the following:
 
 ```shell
 #!/bin/bash
@@ -371,9 +349,67 @@ done
 
 ![Screenshot 2024-08-30 041747](https://github.com/user-attachments/assets/3c81d9aa-13bb-40d3-8ae3-14b120f736e3)
 
-Ensure the script is scheduled to run when the array starts!
 
-![Screenshot 2024-08-30 041904](https://github.com/user-attachments/assets/13169523-cae0-4164-af51-3d225ec9d935)
+
+
+```shell
+# 6. Make script to auto-mount it on startup using user-scripts
+    # TEST THE SCRIPT
+    # LOCK WITH ZFS MASTER AND RUN SCRIPT
+    # STOP ARRAY
+    # START ARRAY
+# 7. Identify what to transfer
+
+    # 1. Immich, Nextcloud and Paperless-ngx documents
+    # What to move:
+
+# /mnt/user/appdata/immich/photos to /mnt/user/appdata-crypt/immich/photos
+
+#nextcloud: mount some directory (e.g. /mnt/user/appdata/nextcloud/logs) as log directory and add this to php config
+  'log_type' => 'file',
+  'logfile' => '/var/log/nextcloud/nextcloud.log',
+  'log_type_audit' => 'file',
+  'logfile_audit' => '/var/log/nextcloud/audit.log',
+
+# /mnt/user/appdata/nextcloud/data to /mnt/user/appdata-crypt/nextcloud/data
+# /mnt/user/appdata/paperless/server/media to /mnt/user/appdata-crypt/paperless/server/media
+# /mnt/user/appdata/paperless/server/export to /mnt/user/appdata-crypt/paperless/server/export
+# /mnt/user/appdata/paperless/server/consume to /mnt/user/appdata-crypt/paperless/server/consume
+
+OLD_DATASET="apps-pool/appdata"
+NEW_DATASET="${DATASET_LOCATION}"
+
+declare -a PATHS_TO_TRANSFER=(
+    "immich/photos"
+    "nextcloud/data"
+    "paperless/server/media"
+    "paperless/server/export"
+    "paperless/server/consume"
+)
+
+for p in "${PATHS_TO_TRANSFER[@]}"; do
+    rsync -aRv "/mnt/${OLD_DATASET}/./${p}" "/mnt/${NEW_DATASET}/"
+done
+
+# or, to move it (BUT BE CAREFUL):
+
+for p in "${PATHS_TO_TRANSFER[@]}"; do
+    rsync -aRv --remove-source-files "/mnt/${OLD_DATASET}/./${p}" "/mnt/${NEW_DATASET}/" && rm -rf "/mnt/${OLD_DATASET}/${p}"
+done
+
+# change directories in docker templates and compose, start the apps again, test tha they're ok
+
+# remove each one of the old folders
+for p in "${PATHS_TO_TRANSFER[@]}"; do
+    rm -rf "/mnt/${OLD_DATASET}/${p}"
+done
+```
+
+
+
+
+
+
 
 # Moving confidential parts of an application
 

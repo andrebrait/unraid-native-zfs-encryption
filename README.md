@@ -83,16 +83,16 @@ These are not requirements, but are highly recommended:
     2. Go to Settings -> Global Share Settings 
     3. Set "Permit exclusive shares" to "Yes"
 
-# Example
+# Tutorial
 
-In this example, we will:
+In this tutorial, we will:
 
 1. Encrypt a dummy array to store the key for the ZFS dataset
 2. Create an encrypted dataset: `appdata-crypt`
 3. Create a script to automatically mount it after the array starts
 4. Moving Immich, Nextcloud and Paperless-ngx to the new encrypted dataset
 
-# Encrypting your Array/Pool
+## Encrypting an Array or Pool
 
 >_If you already have an encrypted **array** or **pool**, skip this section._
 
@@ -105,35 +105,71 @@ The setup I have is composed of:
     * `cache-pool` as a cache for `data-pool` 
     * `apps-pool` for `appdata`, `domain`, `system`, etc.
 
-![Screenshot 2024-08-30 032828](https://github.com/user-attachments/assets/a32af72c-9c3b-47f7-bdb2-2d0c35a844f2)
+![setup](https://github.com/user-attachments/assets/a32af72c-9c3b-47f7-bdb2-2d0c35a844f2)
 
-![Screenshot 2024-08-30 032853](https://github.com/user-attachments/assets/29c3c68d-0bf4-4aea-be21-17f8c79bb6b5)
+![setup-2](https://github.com/user-attachments/assets/29c3c68d-0bf4-4aea-be21-17f8c79bb6b5)
+
 
 In order to encrypt the array, first stop it
 
-![Screenshot 2024-08-30 033210](https://github.com/user-attachments/assets/a4c09e0a-610b-42b6-868f-24024e7b59ec)
+![array-stop](https://github.com/user-attachments/assets/a4c09e0a-610b-42b6-868f-24024e7b59ec)
+
 
 Then select your array device
 
-![Screenshot 2024-08-30 033303](https://github.com/user-attachments/assets/4774e7b8-a1d5-440c-b6ad-fd54e7482d77)
+![array-device-list](https://github.com/user-attachments/assets/4774e7b8-a1d5-440c-b6ad-fd54e7482d77)
 
-![Screenshot 2024-08-30 033327](https://github.com/user-attachments/assets/5066c2b7-9071-444c-afac-044b0e8720df)
 
-![Screenshot 2024-08-30 033421](https://github.com/user-attachments/assets/91ff2559-9561-4291-8bf7-10bac3dcdb69)
+Choose any of the encrypted filesystem options. In this example, we'll be using XFS for its stability.
 
-![Screenshot 2024-08-30 033518](https://github.com/user-attachments/assets/a9a7ab19-c838-4b5e-8b55-f72db7ea1aae)
+![filesystems](https://github.com/user-attachments/assets/5066c2b7-9071-444c-afac-044b0e8720df)
 
-![Screenshot 2024-08-30 033939](https://github.com/user-attachments/assets/999428e1-58a2-4b94-9020-a4e7a44f5db0)
 
-![Screenshot 2024-08-30 034011](https://github.com/user-attachments/assets/e805d429-5908-41c7-80b2-a5b6978412e4)
+Observe that the array device now has a lock icon
 
-![Screenshot 2024-08-30 033956](https://github.com/user-attachments/assets/43da7def-66f7-4b6a-9139-d796ff812a96)
+![array-device-list-pre-format](https://github.com/user-attachments/assets/91ff2559-9561-4291-8bf7-10bac3dcdb69)
 
-![Screenshot 2024-08-30 034047](https://github.com/user-attachments/assets/8a0a5dd2-d730-430f-9a46-5564f5d82f7d)
 
-# Creating the encrypted ZFS dataset
+Scroll down to where the Array Start button is. Type your password of choice and start the array.
 
-![Screenshot 2024-08-30 034158](https://github.com/user-attachments/assets/953486fe-601e-4c95-ba05-8f2766341bb3)
+![password](https://github.com/user-attachments/assets/a9a7ab19-c838-4b5e-8b55-f72db7ea1aae)
+
+
+The array is started, but the device is not yet encrypted! It must be formatted first.
+
+![unformatted](https://github.com/user-attachments/assets/2750b4fd-c1d7-4060-9e0b-2d76eda7913a)
+
+
+Scroll down, tick the `Yes, I want to do that` box and format it.
+
+![formatting](https://github.com/user-attachments/assets/e805d429-5908-41c7-80b2-a5b6978412e4)
+
+
+Click OK to format the device. _THIS WILL ERASE ALL DATA ON IT!_
+
+![formatting-warn](https://github.com/user-attachments/assets/43da7def-66f7-4b6a-9139-d796ff812a96)
+
+
+The device is now correctly formatted and unlocked
+
+![formatted](https://github.com/user-attachments/assets/a364a3c6-31aa-43ff-a0aa-f232774e9f65)
+
+## Creating the encrypted ZFS dataset
+
+
+First, let's find out the path for the encrypted drive we just created by running `ls /mnt`.\
+In this case it's `/mnt/disk1`.
+
+![ls-mnt](https://github.com/user-attachments/assets/953486fe-601e-4c95-ba05-8f2766341bb3)
+
+
+Now let's create the directory where we will store the key file for the encrypted ZFS dataset inside the encrypted disk.
+
+```shell
+# Let's set the key directory in this variable so we can use it further down the line
+KEY_DIR="/mnt/disk1/.zfs-crypt-keys"
+mkdir -p "${KEY_DIR}"
+```
 
 ![Screenshot 2024-08-30 040751](https://github.com/user-attachments/assets/7693e857-248b-4f4e-8180-d04cea452e8d)
 
@@ -256,20 +292,11 @@ Ensure the script is scheduled to run when the array starts!
 # Draft script
 
 ```shell
-# unRAID 6.12.13
 
-# Show setup
-# 1. stop array
-# 2. encrypt Array
-
-ls /mnt/ # find your disk device
-
-# Create your key directory
-KEY_DIR="/mnt/disk1/.zfs-crypt-keys"
 KEY_FILE="${KEY_DIR}/appdata-crypt.key"
 DATASET_LOCATION="apps-pool/appdata-crypt"
 
-mkdir -p "${KEY_DIR}"
+
 
 
 # Raw (notice different keyformat)
@@ -291,7 +318,7 @@ chattr +i "/mnt/${DATASET_LOCATION}"
 # Set it so it is read-only and only root can read or cd into it
 chown -R root:root "${KEY_DIR}"
 chmod -R 500 "${KEY_DIR}"
-chattr +i "${KEY_DIR}"
+chattr -R +i "${KEY_DIR}"
 
 # 5. Mount it again (ignore ZFS master password prompt)
 # 6. Make script to auto-mount it on startup using user-scripts

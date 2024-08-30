@@ -59,6 +59,8 @@ and we never have to worry about the key file because it is itself protected by 
 
 And that is exactly what we'll be doing here!
 
+`Password -> LUKS -> ZFS encryption key -> ZFS encrypted dataset auto-mounted`
+
 # Requirements
 
 This tutorial assumes you have:

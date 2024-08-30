@@ -259,7 +259,7 @@ Now that we know everthing is working, let's head back to the terminal and reduc
 chown -R root:root "${KEY_DIR}"
 chmod -R 500 "${KEY_DIR}"
 
-# Set key directory and files to be immutable so it's absolutely impossible to be chaned
+# Set key directory and files to be immutable so it's absolutely impossible to be modified
 chattr -R +i "${KEY_DIR}"
 ```
 

@@ -92,7 +92,7 @@ In this tutorial, we will:
 3. Create a script to automatically mounts it after the array starts
 4. Move some parts of Immich, Nextcloud and Paperless-ngx to the new encrypted dataset
 
-## Encrypting an Array or Pool
+## Setup
 
 >_If you already have an encrypted **array** or **pool**, skip this section._
 
@@ -109,6 +109,7 @@ The setup I have is composed of:
 
 ![setup-2](https://github.com/user-attachments/assets/29c3c68d-0bf4-4aea-be21-17f8c79bb6b5)
 
+## Encrypting an Array or Pool
 
 In order to encrypt the array, first stop it
 

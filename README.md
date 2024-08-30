@@ -383,11 +383,12 @@ When it starts, you'll be asked to fill in the password for the encryted array, 
 The script will then ensure the dataset is unlocked and mounted before Docker and VMs start up.
 
 
-# Moving confidential parts of an application
-
-1. Stop docker compose.
+# Moving confidential parts of an application [WIP]
 
 ![Screenshot 2024-08-30 042204](https://github.com/user-attachments/assets/789527a3-c4ae-4949-ae5d-f6308aecff29)
+
+
+1. Stop docker compose.
 
 ```shell
 # 1. Identify what to transfer

@@ -333,7 +333,7 @@ for d in "${encrypted_datasets[@]}"; do
     
     
     echo "[$(curr_date)] Mounting ${d} at ${mountpoint}"
-    out=$(zfs mount "${d}" 2>&1)
+    out="$(zfs mount "${d}" 2>&1)"
     if (($? == 0)); then
         echo "[$(curr_date)] Mounted ${d}"
         unraid_notify "Mounted ZFS dataset ${d}" "success"

@@ -8,7 +8,7 @@ encryption then? Here are a few pros and cons, starting with the cons:
 
 * LUKS is transparent to the filesystem and does not depend on any filesystem-specific tooling and it's 
 easy to find help on the internet, should you need it.
-* LUKS is fully supported by unRAID, meaning the GUI and the UI flows are thought out with it in mind.
+* LUKS is fully supported by unRAID, meaning the GUI and the interaction flows are thought out with it in mind.
     * We will actually tap into this support in this document in order to bring a "similar" level of support
     for ZFS encryption, _but it is still not officially supported_, meaning unRAID might change something 
     in the future. It's unlikely, but it _could_ happen.

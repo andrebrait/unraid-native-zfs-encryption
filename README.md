@@ -34,7 +34,7 @@ you can have a mix of encrypted and regular datasets.
     security implications.
         * Yes, LUKS does support TRIM as well, but it's disabled by default and it has security implications due to free 
         space not being encrypted, defeating one of the advantages of FDE over ZFS's native encryption.
-* Enabling LUKS requires formatting the entire storage media. Creating an encrypted ZFS dataset does not, and it's as easy
+* Enabling LUKS requires formatting the entire drive. Creating an encrypted ZFS dataset does not, and it's as easy
   as creating any regular dataset with a couple more options turned on.
 
 # The state of support in unRAID

@@ -4,7 +4,7 @@ unRAID already supports Full Disk Encryption (FDE) through LUKS in combination w
 The support is solid and LUKS is a widely used tool with great performance. So, why use native ZFS
 encryption then? Here are a few pros and cons, starting with the cons:
 
-### Cons
+### Cons of ZFS encryption relative to LUKS
 
 * LUKS is transparent to the filesystem and does not depend on any filesystem-specific tooling and it's 
 easy to find help on the internet, should you need it.
@@ -18,7 +18,7 @@ file metadata and the filesystem structured themselves
     you might want to go with LUKS instead.
     * However, ZFS encryption is not weak. Keep reading!
 
-### Pros
+### Pros of ZFS encryption relative to LUKS
 
 * Unlike LUKS, ZFS encryption can be turned on and tweaked at the _dataset_ level, meaning for a single _pool_
 you can have a mix of encrypted and regular datasets.

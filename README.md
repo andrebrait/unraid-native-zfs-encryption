@@ -73,7 +73,7 @@ This tutorial assumes you have:
 
 1. **_At least one_** of the following:
     1. An encrypted unRAID Array
-    2. An encrypted pool with another filesystem (e.g. btrfs or XFS)
+    2. An encrypted unRAID Pool
     3. No unRAID array (ver. 7 or higher) + a spare drive
     4. A dummy array (ver. 6.12 or lower)
 2. A ZFS pool

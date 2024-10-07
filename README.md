@@ -304,7 +304,7 @@ unraid_notify() {
         severity="warning"
     fi
     
-    /usr/local/emhttp/webGui/scripts/notify -s "Backup Notification" -d "$message" -i "$severity"
+    /usr/local/emhttp/webGui/scripts/notify -s "Notification" -d "$message" -i "$severity"
 }
 
 echo "[$(curr_date)] Detected encrypted datasets: ${encrypted_datasets[@]}"

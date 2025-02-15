@@ -268,7 +268,7 @@ chattr -R +i "${KEY_DIR}"
 ## Setting up the startup script
 
 In order to have the encrypted dataset be unlocked at the same time the Array is started, 
-head over to the `User Scripts` plugin and create a new script.
+head over to `Settings -> User Scripts` and create a new script.
 
 Ensure its schedule is set to `At Startup of Array`, like so:
 
